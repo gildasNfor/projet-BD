@@ -14,8 +14,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework import routers
+from tontine_api import views
+
+router = routers.DefaultRouter()
+router.register(r'tontines', views.TontineViewSet)
+router.register(r'members', views.TontineMemberViewSet)
+router.register(r'rules', views.TontineRuleViewSet)
+router.register(r'users', views.UserViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include(router.urls))
 ]

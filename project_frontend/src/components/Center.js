@@ -1,9 +1,10 @@
 import React from 'react'
 
-function Center() {
+function Center({username}) {
     return (
         <div className = "center">
-            <h1> this is the tontine app</h1>
+            <h1> User name </h1>
+            <h2>{username}</h2>
         </div>
     )
 }

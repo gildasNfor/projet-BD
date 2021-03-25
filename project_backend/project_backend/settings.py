@@ -25,7 +25,7 @@ SECRET_KEY = 'gx@tj40&$2o2%e*a_^en9n6cy0sk2m84d+j95x2w%1y*e)1-^-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.8.101','127.0.0.1']
 
 
 # Application definition
@@ -94,7 +94,7 @@ WSGI_APPLICATION = 'project_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'Project Backend',
+        'NAME': 'Projet-BD',
         'USER': 'postgres',
         'PASSWORD': 'kalamai2',
         'HOST': 'localhost',
@@ -144,9 +144,13 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication', 
      ],
+}
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'tontine_api.serializers.CustomRegisterSerializer',
+    'USER_DETAILS_SERIALIZER': 'tontine_api.serializers.CustomRegisterSerializer',
 }
 
 REST_USE_JWT = True
@@ -157,4 +161,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000"
 ]
 
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 SITE_ID = 1
+AUTH_USER_MODEL = 'tontine.CustomUser'

@@ -1,8 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
+User = settings.AUTH_USER_MODEL
 Status_Choices = [
     ('PR', 'President'),
     ('TR', 'Treasurer'),
@@ -12,19 +14,16 @@ Status_Choices = [
     ('AAU', 'Asistant Auditor'),
     ('MEM', 'Member')
 ]
-
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=50, default='0000')
-    birth_date = models.DateField(default = '2021-04-07')
-    address = models.CharField(max_length=100, default='yaounde')
-    profession = models.CharField(max_length=100, default='Teacher')
+ 
+ 
+class CustomUser(AbstractUser):
+    phone_number = models.CharField(max_length=30)
+    birth_date = models.DateField(blank = True, null = True)
+    address = models.CharField(max_length=100)
+    profession = models.CharField(max_length=100)
     
     def __str__(self):
-        return self.user.username + ' ' + 'Profile'
- 
- 
-
+        return self.username 
     
 class Tontine(models.Model):
     name = models.CharField(max_length=100)
@@ -37,7 +36,7 @@ class Tontine(models.Model):
     
 class TontineMember(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE)
-    number_of_shares = models.IntegerField()
+    number_of_shares = models.IntegerField(default = '0')
     status = models.CharField(max_length=5, default='MEM', choices = Status_Choices)
     tontine = models.ForeignKey(Tontine, on_delete=models.CASCADE)
     

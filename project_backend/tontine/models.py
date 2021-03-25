@@ -15,20 +15,22 @@ Status_Choices = [
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    email = models.EmailField(max_length=500, blank=True)
-    phone = models.CharField(max_length=50)
-    birth_date = models.DateField()
-    address = models.CharField(max_length=100)
-    profession = models.CharField(max_length=100)
+    phone = models.CharField(max_length=50, default='0000')
+    birth_date = models.DateField(default = '2021-04-07')
+    address = models.CharField(max_length=100, default='yaounde')
+    profession = models.CharField(max_length=100, default='Teacher')
+    
+    def __str__(self):
+        return self.user.username + ' ' + 'Profile'
  
-    @receiver(post_save, sender=User)
-    def create_user_profile(sender, instance, created, **kwargs):
-        if created:
-            Profile.objects.create(user=instance)
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
 
-    @receiver(post_save, sender=User)
-    def save_user_profile(sender, instance, **kwargs):
-        instance.profile.save()
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
     
 class Tontine(models.Model):
     name = models.CharField(max_length=100)
@@ -46,7 +48,7 @@ class TontineMember(models.Model):
     tontine = models.ForeignKey(Tontine, on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.user.get_username()
+        return self.user.username
 
 class Rules(models.Model):
     

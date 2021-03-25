@@ -13,6 +13,9 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { setUser } from "../redux/actions/authActions";
 
 function Copyright() {
   return (
@@ -47,7 +50,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function SignUp() {
+function SignUp({ setUser, currentUser }) {
   const [profile, setProfile] = useState({
     firstName: "",
     lastName: "",
@@ -66,7 +69,22 @@ export default function SignUp() {
     setProfile(profile => {
       return { ...profile, [name]: value };
     });
-    console.log(profile);
+  };
+  console.log("The current user is " + currentUser?.firstName);
+  const submitForm = e => {
+    e.preventDefault();
+    setUser(profile);
+    setProfile({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      number: "",
+      birthDate: "",
+      address: "",
+      profession: "",
+    });
   };
 
   const classes = useStyles();
@@ -216,6 +234,7 @@ export default function SignUp() {
             variant="contained"
             color="primary"
             className={classes.submit}
+            onClick={submitForm}
           >
             Sign Up
           </Button>
@@ -232,3 +251,15 @@ export default function SignUp() {
     </Container>
   );
 }
+
+const mapStateToProps = ({ auth }) => {
+  return {
+    currentUser: auth.user,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators({ setUser }, dispatch);
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignUp);

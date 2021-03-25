@@ -126,7 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Douala'
 
 USE_I18N = True
 
@@ -146,13 +146,17 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication', 
      ],
+     'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
 }
 
 REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'tontine_api.serializers.CustomRegisterSerializer',
-    'USER_DETAILS_SERIALIZER': 'tontine_api.serializers.CustomRegisterSerializer',
 }
-
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'tontine_api.serializers.CustomUserDetailsSerializer',
+}
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = 'tontine-auth'
 # JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'

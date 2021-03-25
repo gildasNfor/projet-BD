@@ -12,7 +12,7 @@ class TontineSerializer(serializers.ModelSerializer):
 class TontineMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = TontineMember
-        fields = ['url','user', 'status', 'tontine']
+        fields = ['id','user', 'status', 'tontine']
         
 class TontineRuleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,3 +40,17 @@ class CustomRegisterSerializer(RegisterSerializer):
         user.last_name = self.data.get('lastname')
         user.save()
         return user
+    
+    
+class CustomUserDetailsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'pk',
+            'username',
+            'email',
+            'phone_number',
+            'address',
+        )
+        read_only_fields = ('pk', 'email')

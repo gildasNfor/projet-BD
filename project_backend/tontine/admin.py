@@ -8,7 +8,21 @@ class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = CustomUser
-    list_display = ['email', 'username']
+    list_display = ['username', 'email', 'is_staff']
+    fieldsets = (
+        *UserAdmin.fieldsets,
+        (
+            'Profile',
+            {
+                'fields':(
+                    'phone_number',
+                    'birth_date',
+                    'address',
+                    'profession'
+                )
+            }
+        )
+    )
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Tontine)

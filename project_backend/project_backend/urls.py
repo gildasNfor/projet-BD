@@ -15,17 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework import routers
 from tontine_api import views
 
-router = routers.DefaultRouter()
-router.register(r'tontines', views.TontineViewSet)
-router.register(r'members', views.TontineMemberViewSet)
-router.register(r'rules', views.TontineRuleViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+    path('api/', include('tontine_api.urls')),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('accounts/', include('allauth.urls')),
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls'))

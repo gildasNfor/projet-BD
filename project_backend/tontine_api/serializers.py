@@ -10,7 +10,7 @@ class TontineSerializer(serializers.ModelSerializer):
 class TontineMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = TontineMember
-        fields = ['url','user','address', 'phone', 'status', 'tontine']
+        fields = ['url','user', 'status', 'tontine']
         
 class TontineRuleSerializer(serializers.ModelSerializer):
     class Meta:

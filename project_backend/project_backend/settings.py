@@ -46,8 +46,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'rest_framework.authtoken',
-    'rest_auth',
-    'rest_auth.registration',  
+    'dj_rest_auth',
+    'dj_rest_auth.registration', 
 ]
 
 MIDDLEWARE = [
@@ -145,8 +145,13 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-    ],
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication', 
+     ],
 }
+
+REST_USE_JWT = True
+JWT_AUTH_COOKIE = 'tontine-auth'
+# JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000"

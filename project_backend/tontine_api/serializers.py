@@ -7,17 +7,12 @@ from dj_rest_auth.registration.serializers import RegisterSerializer
 class TontineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tontine
-        fields = ['url', 'name', 'created_on', 'slogan']
+        fields = ['id', 'name', 'created_on', 'created_by', 'slogan']
         
 class TontineMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = TontineMember
         fields = ['id','user', 'status', 'tontine']
-        
-class TontineRuleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Rules
-        fields = ['url','tontine','rules']
         
         
 class CustomRegisterSerializer(RegisterSerializer):

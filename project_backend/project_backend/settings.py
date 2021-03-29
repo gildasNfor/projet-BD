@@ -25,7 +25,7 @@ SECRET_KEY = 'gx@tj40&$2o2%e*a_^en9n6cy0sk2m84d+j95x2w%1y*e)1-^-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.8.101','127.0.0.1']
+ALLOWED_HOSTS = ['192.168.8.103','127.0.0.1']
 
 
 # Application definition
@@ -94,7 +94,7 @@ WSGI_APPLICATION = 'project_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'Projet-BD',
+        'NAME': 'DB-project',
         'USER': 'postgres',
         'PASSWORD': 'kalamai2',
         'HOST': 'localhost',
@@ -159,7 +159,6 @@ REST_AUTH_SERIALIZERS = {
 }
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = 'tontine-auth'
-# JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000"

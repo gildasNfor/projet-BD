@@ -20,7 +20,7 @@ from tontine_api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('tontine-admin/', include('tontine.urls')),
+    path('tontine-app/', include('tontine.urls')),
     path('api/', include('tontine_api.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('accounts/', include('allauth.urls')),

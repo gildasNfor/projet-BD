@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import CustomUser
-from .models import Tontine,TontineMember,Rules
+from .models import Tontine,TontineMember,Rules,Requests
 
 class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
@@ -28,3 +28,4 @@ admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Tontine)
 admin.site.register(TontineMember)
 admin.site.register(Rules)
+admin.site.register(Requests)

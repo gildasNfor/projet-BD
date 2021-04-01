@@ -159,6 +159,7 @@ REST_AUTH_SERIALIZERS = {
 }
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = 'tontine-auth'
+JWT_AUTH_REFRESH_COOKIE = 'tontine-refresh-token'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000"

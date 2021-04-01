@@ -30,7 +30,6 @@ class Tontine(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete = models.CASCADE)
     slogan = models.TextField()
-    slug = models.TextField()
     
     def __str__(self):
         return self.name
@@ -43,7 +42,7 @@ class TontineMember(models.Model):
     tontine = models.ForeignKey(Tontine, on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.user.username
+        return self.user.username + '-' + self.tontine.name
 
 class Rules(models.Model):
     class Meta:
@@ -57,7 +56,13 @@ class Rules(models.Model):
         return self.tontine.name
     
 class Requests(models.Model):
+    class Meta:
+        verbose_name = 'Reqeusts'
+        verbose_name_plural = 'Requests'
     tontine = models.ForeignKey(Tontine, on_delete=models.CASCADE)
     sent_from = models.ForeignKey(User, on_delete = models.CASCADE)
     sent_on = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default = False)
+    
+    def __str__(self):
+        return self.sent_from.username + ' to ' + self.tontine.name

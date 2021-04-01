@@ -25,7 +25,7 @@ SECRET_KEY = 'gx@tj40&$2o2%e*a_^en9n6cy0sk2m84d+j95x2w%1y*e)1-^-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.8.103','127.0.0.1']
+ALLOWED_HOSTS = ['192.168.8.101','127.0.0.1']
 
 
 # Application definition
@@ -167,3 +167,10 @@ CORS_ALLOWED_ORIGINS = [
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 SITE_ID = 1
 AUTH_USER_MODEL = 'tontine.CustomUser'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'cadellgriffith@gmail.com'
+EMAIL_HOST_PASSWORD = 'kalamai2'

@@ -15,6 +15,12 @@ class TontineListCreate(generics.ListCreateAPIView):
 class TontineDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Tontine.objects.all()
     serializer_class = TontineSerializer
-    permission_classes = [IsAuthenticated, IsUserOrReadOnly]
+    permission_classes = [IsAuthenticated]
+    
+@api_view(['GET'])
+def get_my_tontine_list(request):
+    tontines = Tontine.objects.filter(user=request.user)
+    serializer = TontineSerializer(tontines, many=True)
+    return Response(serializer.data)
     
     

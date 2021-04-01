@@ -46,7 +46,6 @@ class TontineMember(models.Model):
         return self.user.username
 
 class Rules(models.Model):
-    
     class Meta:
         verbose_name = 'Tontine Rule'
         verbose_name_plural = 'Tontine Rules'
@@ -56,3 +55,9 @@ class Rules(models.Model):
     
     def __str__(self):
         return self.tontine.name
+    
+class Requests(models.Model):
+    tontine = models.ForeignKey(Tontine, on_delete=models.CASCADE)
+    sent_from = models.ForeignKey(User, on_delete = models.CASCADE)
+    sent_on = models.DateTimeField(auto_now_add=True)
+    status = models.BooleanField(default = False)

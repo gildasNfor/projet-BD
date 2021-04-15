@@ -3,8 +3,8 @@ from rest_framework import generics,status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import TontineSerializer, TontineMemberSerializer
-from tontine.models import Tontine, TontineMember, Rules
+from .serializers import TontineSerializer, TontineMemberSerializer, CustomUserDetailsSerializer
+from tontine.models import Tontine, TontineMember, Rules, CustomUser
 from .permissions import IsUserOrReadOnly
 import json
 
@@ -26,6 +26,10 @@ def get_user_tontine_list(request):
     serializer = TontineSerializer(tontines, many=True)
     return Response(serializer.data)
 
+
+class UserList(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserDetailsSerializer
     
     
     

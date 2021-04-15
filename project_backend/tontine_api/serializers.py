@@ -1,6 +1,5 @@
 from tontine.models import Tontine, TontineMember, Rules, CustomUser
 from rest_framework import serializers
-from django.contrib.auth.models import User
 from django.db import transaction
 from dj_rest_auth.registration.serializers import RegisterSerializer
 
@@ -49,3 +48,4 @@ class CustomUserDetailsSerializer(serializers.ModelSerializer):
             'last_name',
         )
         read_only_fields = ('pk', 'email')
+        

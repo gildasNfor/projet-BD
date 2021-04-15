@@ -25,7 +25,7 @@ SECRET_KEY = 'gx@tj40&$2o2%e*a_^en9n6cy0sk2m84d+j95x2w%1y*e)1-^-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.8.101','127.0.0.1']
+ALLOWED_HOSTS = ['192.168.8.100','127.0.0.1','192.168.8.101','192.168.8.103','192.168.8.102',]
 
 
 # Application definition
@@ -142,7 +142,7 @@ STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    # 'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication', 
      ],

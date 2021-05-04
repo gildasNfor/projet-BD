@@ -18,6 +18,11 @@ class TontineDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TontineSerializer
     permission_classes = [IsAuthenticated]
     
+class UserList(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserDetailsSerializer
+    
+    
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_tontine_list(request):
@@ -27,9 +32,10 @@ def get_user_tontine_list(request):
     return Response(serializer.data)
 
 
-class UserList(generics.ListAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserDetailsSerializer
-    
-    
-    
+@api_view(['GET'])
+def get_tontine_member_list(request, tontine):
+    tontine_obj = Tontine.objects.get(name = tontine)
+    members = tontine_obj.tontinemember_set.all()
+    member_users = [member.user for member in members]
+    serializer = CustomUserDetailsSerializer(member_users, many = True)
+    return Response(serializer.data)

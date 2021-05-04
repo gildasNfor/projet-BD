@@ -66,3 +66,15 @@ class Requests(models.Model):
     
     def __str__(self):
         return self.sent_from.username + ' to ' + self.tontine.name
+    
+    
+class Messages(models.Model):
+    subject = models.CharField(max_length = 255)
+    sent_from = models.CharField(max_length = 100)
+    sent_to = models.ForeignKey(User, on_delete = models.CASCADE, null=True, blank = True)
+    message = models.TextField()
+    is_read = models.BooleanField(default = False)
+    tontine = models.CharField(max_length = 200)
+    
+    def __str__(self):
+        return self.sent_from + ' to ' + self.sent_to.username

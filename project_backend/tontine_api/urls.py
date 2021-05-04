@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import TontineListCreate, TontineDetail,get_user_tontine_list, UserList
+from .views import TontineListCreate, TontineDetail,get_user_tontine_list, UserList, get_tontine_member_list
 
 app_name = 'tontine_api'
 # API endpoints
@@ -18,6 +18,8 @@ urlpatterns = format_suffix_patterns([
     path('user-tontine-list/',
         get_user_tontine_list,
         name='user-tontine-list'),
-    
+    path('get-tontine-member-list/<tontine>/',
+         get_tontine_member_list,
+         name='get-tontine-member-list'),
    
 ])

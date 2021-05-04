@@ -4,17 +4,27 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import Tontine,TontineMember,Requests,CustomUser
-from .serializers import RequestsSerializer
+from .models import Tontine,TontineMember,Requests,CustomUser,Messages
+from .serializers import RequestsSerializer, MessagesSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import generics,status
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 
 # Create your views here.
 User = settings.AUTH_USER_MODEL
+
+def send_message_to(sent_from, send_to, subject, message, tontine):
+    Messages.objects.create(
+        sent_from = sent_from,
+        subject = subject,
+        sent_to = send_to,
+        message = message,
+        tontine = tontine
+    )
+
 
 @csrf_exempt
 @api_view(['POST'])
@@ -37,6 +47,8 @@ def invite_member(request):
         return Response({'status':'sent', 'email':email_to, 'message':message})
     
     return Response('this user has already sent a request to join')
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def send_request(request, tontine):
@@ -79,6 +91,7 @@ def get_tontine_info(reqeust, tontine):
     president = TontineMember.objects.get(tontine=tontine_obj, status = 'PR').user.get_username()
     return JsonResponse({'number_of_members':number_of_members, 'president':president})
 
+
 @api_view(['GET'])
 def get_join_requests(request, tontine):
     tontine_obj = Tontine.objects.get(name=tontine)
@@ -86,10 +99,12 @@ def get_join_requests(request, tontine):
     serializer = RequestsSerializer(requests, many=True)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 def get_member_info(reqeust, tontine):
     member = TontineMember.objects.get(user=reqeust.user, tontine = Tontine.objects.get(name=tontine))
     return JsonResponse({'status':member.status, 'shares':member.number_of_shares})
+
 
 def accept_invite(request, request_pk):
     request_obj = Requests.objects.get(pk=request_pk)
@@ -98,3 +113,45 @@ def accept_invite(request, request_pk):
     TontineMember.objects.create(user = request_obj.sent_from, tontine = request_obj.tontine)
     html = f'<h1> You are now a member of {request_obj.tontine.name} </h1> <br> <p> click the link below to login </p> <br> <a href="http://localhost:3000"> www.tontineapp.com </a>'
     return HttpResponse(html)
+   
+
+@api_view(['POST'])
+def send_message(request):
+    receiver = request.data['send_to']
+    subject = request.data['subject']
+    message = request.data['message']
+    tontine_name = request.data['tontine']
+    tontine = Tontine.objects.get(name=tontine_name)
+    
+    if receiver == 'All':
+        for member in tontine.tontinemember_set.all():
+            send_message_to(request.user.username,member.user,subject,message,tontine.name)
+            
+        return Response({'status':'successful'})
+        
+    else:
+        try:
+            send_to = CustomUser.objects.get(username = receiver)
+            send_message_to(request.user.username,send_to,subject,message,tontine.name)
+            
+            return Response({'status':'successful'})
+            
+        except ObjectDoesNotExist:
+            return Response({'status': 'This member does not exist'})
+    
+    return Response({'status': 'Something went wrong while sending'})
+        
+
+class MessageList(generics.ListAPIView):
+    queryset = Messages.objects.all()
+    serializer_class = MessagesSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Messages.objects.filter(sent_to = self.request.user, tontine = self.request.GET.get('tontine'))
+    
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = MessagesSerializer(queryset, many=True)
+        return Response(serializer.data)
+    

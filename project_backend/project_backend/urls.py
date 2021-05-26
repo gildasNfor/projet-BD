@@ -15,12 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from tontine_api import views
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('tontine-app/', include('tontine.urls')),
+    path('polls/', include('polls.urls')),
     path('api/', include('tontine_api.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('accounts/', include('allauth.urls')),

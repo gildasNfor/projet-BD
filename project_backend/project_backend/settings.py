@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['192.168.8.100','127.0.0.1','192.168.8.101','192.168.8.103','19
 INSTALLED_APPS = [
     'tontine',
     'tontine_api',
+    'polls',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

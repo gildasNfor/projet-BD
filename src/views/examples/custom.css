@@ -1,0 +1,154 @@
+.pointer:hover {
+  cursor: pointer;
+  opacity: 0.5;
+  font-weight: bold;
+}
+
+.pointer {
+  font-weight: bold;
+  color: ivory;
+}
+
+.others:hover {
+  cursor: pointer;
+  opacity: 0.5;
+  font-weight: bold;
+}
+
+.others {
+  font-weight: bold;
+  color: black;
+}
+
+.chat__body {
+  flex: 1;
+  background-repeat: repeat;
+  background-position: center;
+  padding: 30px;
+  overflow: scroll;
+  background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
+}
+
+.chat__message {
+  position: relative;
+  font-weight: 16px;
+  padding: 8px;
+  border-radius: 10px;
+  width: fit-content;
+  background-color: #ffffff;
+  margin-bottom: 30px;
+}
+
+.chat__name {
+  position: absolute;
+  top: -15px;
+  font-weight: 800;
+  font-size: xx-small;
+}
+
+.chat__timestamp {
+  margin-left: 10px;
+  font-size: xx-small;
+}
+
+.chat__reciever {
+  margin-left: auto;
+  background-color: #dcf8c6;
+}
+
+.chat__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 62px;
+  border-top: 1px solid lightgray;
+  background-color: grey;
+  padding: 5px;
+}
+
+.chat__footer > form {
+  flex: 1;
+  display: flex;
+}
+
+.chat__footer > form > input {
+  flex: 1;
+  border-radius: 30px;
+  padding: 10px;
+  border: none;
+  outline: none;
+}
+
+.chat__footer > form > button {
+  display: none;
+}
+
+.chat__footer > .MuiSvgIcon-root {
+  color: grey;
+  padding: 10px;
+}
+
+.header {
+  background-color: grey;
+}
+
+.note {
+  background: #fff;
+  border-radius: 7px;
+  box-shadow: 0 2px 5px #ccc;
+  padding: 10px;
+  width: 240px;
+  margin: 16px;
+  float: left;
+}
+
+.election__card {
+  background-color: #fff;
+  margin: 10px 8px;
+  min-width: 400px;
+}
+
+hr {
+  margin: 5px;
+}
+/* 
+.election__div {
+  max-width: 95%;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+} */
+
+.candidate {
+  display: flex;
+}
+
+.picture {
+  display: inline;
+  padding: 10px;
+}
+
+.picture > .MuiSvgIcon-root {
+  display: inline;
+}
+
+.candidate__name {
+  margin-left: 8px;
+  padding-top: 15px;
+}
+
+.checkbox {
+  padding-top: 7px;
+  margin-left: auto;
+}
+
+.vote__div {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+}
+
+.vote__btn {
+  margin: auto;
+}

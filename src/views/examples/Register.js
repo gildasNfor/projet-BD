@@ -55,6 +55,7 @@ const Register = ({ setUser }) => {
         axiosInstance.defaults.headers["Authorization"] =
           "JWT " + localStorage.getItem("access_token");
         setUser(res.data.user);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
         console.log(res);
         history.push("/admin/user-profile");
       })

@@ -47,9 +47,8 @@ const Login = ({ setUser }) => {
         axiosInstance.defaults.headers["Authorization"] =
           "Bearer " + localStorage.getItem("access_token");
         setUser(res.data.user);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
         history.push("/auth/my-tontines");
-        //console.log(res);
-        //console.log(res.data);
       })
       .catch(err => {
         console.log(err);

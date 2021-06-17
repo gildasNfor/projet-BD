@@ -1,7 +1,7 @@
 // jshint esversion:6
 import axios from "axios";
 
-const baseURL = "http://192.168.8.101:8000";
+const baseURL = "http://192.168.8.100:8000";
 
 const axiosInstance = axios.create({
   baseURL: baseURL,

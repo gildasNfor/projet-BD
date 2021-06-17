@@ -77,6 +77,7 @@ const UserDashboard = props => {
   const [loanInfo, setLoanInfo] = useState({
     amount: "",
     reason: "",
+    payment_date: "",
   });
   const [accountNumber, setAccountNumber] = useState();
   const [funds, setFunds] = useState([]);
@@ -126,11 +127,30 @@ const UserDashboard = props => {
     );
   };
 
-  const fundsAndContributions = info => {
+  const FundsAndContributions = ({ name, amount, id }) => {
+    const makeContribution = () => {
+      axiosInstance
+        .post(`/finance/contribute/`, {
+          pk_contribution: id,
+          pk_account: accountNumber,
+        })
+        .then(res => {
+          console.log(res.data);
+          setBalance(res.data.amount);
+          alert(res.data.status);
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    };
     return (
       <div>
-        <span>Gods speed</span>
-        <button>contribute</button>
+        <p>{name}</p>
+        <p>Amount: {amount}</p>
+        <button onClick={makeContribution} className="btn btn-outline-dark">
+          contribute
+        </button>
+        <hr />
       </div>
     );
   };
@@ -144,22 +164,6 @@ const UserDashboard = props => {
         <p className="others">Subject: {properties.subject}</p>
       </div>
     );
-  };
-
-  const topUp = () => {
-    axiosInstance
-      .post(`/finance/get-account/`, {
-        pk_tontine: props.activeTontine.id,
-        pk_owner: props.currentUser.pk,
-      })
-      .then(res => {
-        console.log(res);
-        setAccountNumber(res.data.pk);
-        document.getElementById("topup_form").classList.remove("invisible");
-      })
-      .catch(err => {
-        console.log(err);
-      });
   };
 
   const createAccount = () => {
@@ -181,16 +185,28 @@ const UserDashboard = props => {
       .post(`/finance/top-up/`, { pk: accountNumber, amount: amount })
       .then(res => {
         console.log(res);
+        setBalance(res.data.amount);
+        setAmount("");
       })
       .catch(err => {
         console.log(err);
       });
+  };
 
+  const submitLoanForm = () => {
     axiosInstance
-      .get(`/finance/get-balance/${accountNumber}`)
+      .post(`/finance/loans/`, {
+        tontine: props.activeTontine.id,
+        owner: props.currentUser.pk,
+        ...loanInfo,
+      })
       .then(res => {
-        console.log(res.data);
-        setBalance(res.data.balance);
+        console.log(res);
+        setLoanInfo({
+          amount: "",
+          reason: "",
+          payment_date: "",
+        });
       })
       .catch(err => {
         console.log(err);
@@ -199,8 +215,9 @@ const UserDashboard = props => {
 
   useEffect(() => {
     const string = localStorage.getItem("active_tontine");
+    const active_user = localStorage.getItem("user");
+    const user = JSON.parse(active_user);
     const active_tontine = JSON.parse(string);
-    console.log(active_tontine);
     props.setActiveTontine(active_tontine);
     setNoRoom(0);
 
@@ -227,6 +244,36 @@ const UserDashboard = props => {
       .get(`/tontine-app/get-messages/?tontine=${active_tontine?.name}`)
       .then(res => {
         setMessages(res.data);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+
+    axiosInstance
+      .post(`/finance/get-account/`, {
+        pk_tontine: active_tontine?.id,
+        pk_owner: user?.pk,
+      })
+      .then(res => {
+        console.log(res);
+        setAccountNumber(res.data.pk);
+        axiosInstance
+          .get(`/finance/get-balance/${res.data.pk}`)
+          .then(res => {
+            setBalance(res.data.balance);
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    axiosInstance
+      .get(`/finance/get-contributions/${active_tontine?.id}`)
+      .then(res => {
+        console.log(res.data);
+        setContributions(res.data);
       })
       .catch(err => {
         console.log(err);
@@ -353,17 +400,26 @@ const UserDashboard = props => {
                 {/* Chart */}
                 <div className="note">
                   <h1>Account details</h1>
-                  <h3>{balance}</h3>
-                  <button className="btn btn-primary" onClick={createAccount}>
-                    Create Account
-                  </button>
-                  <hr />
-                  <button className="btn btn-primary" onClick={topUp}>
-                    Top Up
-                  </button>
+                  <h3>{`$ ${balance}`}</h3>
+                  {!accountNumber ? (
+                    <button className="btn btn-primary" onClick={createAccount}>
+                      Create Account
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => {
+                        document
+                          .getElementById("topup_form")
+                          .classList.remove("invisible");
+                      }}
+                    >
+                      Top Up
+                    </button>
+                  )}
                 </div>
                 {/*  */}
-                <div id="topup_form" className="note ">
+                <div id="topup_form" className="note invisible">
                   <h1>Enter Info</h1>
                   <hr />
                   <input
@@ -401,25 +457,44 @@ const UserDashboard = props => {
                     value={loanInfo.reason}
                   ></input>
                   <hr />
+                  <input
+                    onChange={updateLoanForm}
+                    id="date"
+                    class="form-control"
+                    type="date"
+                    name="payment_date"
+                    value={loanInfo.payment_date}
+                    placeholder="payment date"
+                  />
+                  <hr />
                   <button
                     className="btn btn-outline-primary"
-                    onClick={submitTopup}
+                    onClick={submitLoanForm}
                   >
                     Request
                   </button>
                 </div>
                 {/*  */}
-                <div className="note">
+                {/* <div className="note">
                   <h1>Funds</h1>
                   <h3>Contribute to a fund</h3>
                   {funds.map(fund => (
-                    <fundsAndContributions />
+                    <FundsAndContributions />
                   ))}
-                </div>
+                </div> */}
                 {/*  */}
                 <div className="note">
                   <h1>Contributions</h1>
                   <h3>Make a Contribution</h3>
+                  <hr />
+                  {contributions.map((contribution, index) => (
+                    <FundsAndContributions
+                      key={index}
+                      name={contribution.name}
+                      amount={contribution.amount}
+                      id={contribution.id}
+                    />
+                  ))}
                 </div>
               </CardBody>
             </Card>
@@ -458,8 +533,9 @@ const UserDashboard = props => {
                 </Row>
               </CardHeader>
               <div style={{ maxHeight: "200px" }} className="chat__body">
-                {chatMessages.map(message => (
+                {chatMessages.map((message, index) => (
                   <p
+                    key={index}
                     className={`chat__message ${
                       message.name === props.currentUser?.username &&
                       "chat__reciever"

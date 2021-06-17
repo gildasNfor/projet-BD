@@ -31,7 +31,7 @@
 
 .chat__message {
   position: relative;
-  font-weight: 16px;
+  font-weight: bold;
   padding: 8px;
   border-radius: 10px;
   width: fit-content;
@@ -49,6 +49,7 @@
 .chat__timestamp {
   margin-left: 10px;
   font-size: xx-small;
+  font-weight: 16px;
 }
 
 .chat__reciever {
@@ -151,4 +152,17 @@ hr {
 
 .vote__btn {
   margin: auto;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 2px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: grey;
 }

@@ -31,6 +31,8 @@ import {
 } from "variables/charts.js";
 
 import axiosInstance from "../../axios";
+import db from "../../firebase/firebase";
+import firebase from "firebase";
 import { useParams } from "react-router-dom";
 import { connect } from "react-redux";
 import { setAllUsers, setDetails } from "../../redux/actions/authActions";
@@ -65,12 +67,54 @@ const UserDashboard = props => {
         "Lionel Andrés Messi is an Argentine professional footballer who plays as a forward and captains both Spanish club Barcelona and the Argentina national team.",
     },
   ]);
+  const [chatMessages, setChatMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [rooms, setRooms] = useState([]);
+  const [activeRoom, setActiveRoom] = useState({});
+  const [noRoom, setNoRoom] = useState(0);
+  const [amount, setAmount] = useState("");
+  const [balance, setBalance] = useState("");
+  const [loanInfo, setLoanInfo] = useState({
+    amount: "",
+    reason: "",
+  });
+  const [accountNumber, setAccountNumber] = useState();
+  const [funds, setFunds] = useState([]);
+  const [contributions, setContributions] = useState([]);
+  const [accountMessage, setAccountMessage] = useState("");
+
+  const updateLoanForm = event => {
+    const { name, value } = event.target;
+    setLoanInfo(info => {
+      return { ...info, [name]: value };
+    });
+  };
+
+  const changeAmount = e => {
+    const { value } = e.target;
+    setAmount(value);
+  };
 
   const sendMessage = e => {
     e.preventDefault();
-    console.log("You typed >>>" + input);
+
+    const tontineId = JSON.parse(
+      localStorage.getItem("active_tontine")
+    ).tontineId;
+
+    const date = new Date();
+    db.collection("rooms")
+      .doc(tontineId)
+      .collection("messages")
+      .add({
+        message: input,
+        name: props.currentUser.username,
+        timestamp: date.toLocaleTimeString("en-US", { hour12: false }),
+        // timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
     setInput("");
+    const div = document.querySelectorAll(".chat__body")[0];
+    div.scrollTop = div.scrollHeight;
   };
 
   const Member = ({ first_name, last_name }) => {
@@ -82,15 +126,75 @@ const UserDashboard = props => {
     );
   };
 
+  const fundsAndContributions = info => {
+    return (
+      <div>
+        <span>Gods speed</span>
+        <button>contribute</button>
+      </div>
+    );
+  };
+
   const MessageComponent = ({ properties }) => {
     const displaySwal = () => {
       return <CustomizedDialogs />;
     };
     return (
       <div onClick={displaySwal} className="others">
-        <p>Subject: {properties.subject}</p>
+        <p className="others">Subject: {properties.subject}</p>
       </div>
     );
+  };
+
+  const topUp = () => {
+    axiosInstance
+      .post(`/finance/get-account/`, {
+        pk_tontine: props.activeTontine.id,
+        pk_owner: props.currentUser.pk,
+      })
+      .then(res => {
+        console.log(res);
+        setAccountNumber(res.data.pk);
+        document.getElementById("topup_form").classList.remove("invisible");
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  const createAccount = () => {
+    axiosInstance
+      .post(`/finance/accounts/`, {
+        tontine: props.activeTontine.id,
+        user: props.currentUser.pk,
+      })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  const submitTopup = () => {
+    axiosInstance
+      .post(`/finance/top-up/`, { pk: accountNumber, amount: amount })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+
+    axiosInstance
+      .get(`/finance/get-balance/${accountNumber}`)
+      .then(res => {
+        console.log(res.data);
+        setBalance(res.data.balance);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {
@@ -98,11 +202,11 @@ const UserDashboard = props => {
     const active_tontine = JSON.parse(string);
     console.log(active_tontine);
     props.setActiveTontine(active_tontine);
+    setNoRoom(0);
 
     axiosInstance
       .get(`/tontine-app/get-member-info/${active_tontine?.name}`)
       .then(res => {
-        console.log(res.data);
         props.setDetails(res.data);
       })
       .catch(err => {
@@ -112,7 +216,6 @@ const UserDashboard = props => {
     axiosInstance
       .get(`/api/get-tontine-member-list/${active_tontine?.name}`)
       .then(res => {
-        console.log(res.data);
         setTontineMembers(res.data);
         console.log(tontineMembers);
       })
@@ -123,7 +226,6 @@ const UserDashboard = props => {
     axiosInstance
       .get(`/tontine-app/get-messages/?tontine=${active_tontine?.name}`)
       .then(res => {
-        console.log(res.data);
         setMessages(res.data);
       })
       .catch(err => {
@@ -135,13 +237,62 @@ const UserDashboard = props => {
     axiosInstance
       .get(`/api/users`)
       .then(res => {
-        console.log(res.data);
         props.setAllUsers(res.data);
       })
       .catch(err => {
         console.log(err);
       });
   }, []);
+
+  useEffect(() => {
+    db.collection("rooms").onSnapshot(snapshot => {
+      setRooms(
+        snapshot.docs.map(doc => ({
+          id: doc.id,
+          name: doc.data().name,
+        }))
+      );
+    });
+    if (localStorage.getItem("active_tontine")) {
+      const tontineName = JSON.parse(
+        localStorage.getItem("active_tontine")
+      ).name;
+
+      const list = rooms.filter(room => room.name === tontineName);
+
+      if (!list) {
+        db.collection("rooms").add({ name: tontineName });
+      } else {
+        setActiveRoom(list[0]);
+      }
+    }
+    if (
+      activeRoom &&
+      !JSON.parse(localStorage.getItem("active_tontine"))?.tontineId
+    ) {
+      let tontine = JSON.parse(localStorage.getItem("active_tontine"));
+      tontine = { ...tontine, tontineId: activeRoom.id };
+      localStorage.setItem("active_tontine", JSON.stringify(tontine));
+    }
+    if (!JSON.parse(localStorage.getItem("active_tontine")).tontineId)
+      setNoRoom(noRoom + 1);
+    // if (!activeRoom) setNoRoom(noRoom + 1);
+  }, [noRoom]);
+  useEffect(() => {
+    const tontineId = JSON.parse(
+      localStorage.getItem("active_tontine")
+    )?.tontineId;
+    console.log(tontineId);
+    if (tontineId) {
+      db.collection("rooms")
+        .doc(tontineId)
+        .collection("messages")
+        .orderBy("timestamp", "asc")
+        .onSnapshot(snapshot =>
+          setChatMessages(snapshot.docs.map(doc => doc.data()))
+        );
+    }
+  }, [noRoom]);
 
   if (window.Chart) {
     parseOptions(Chart, chartOptions());
@@ -167,8 +318,8 @@ const UserDashboard = props => {
                     <h6 className="text-uppercase text-light ls-1 mb-1"></h6>
                     <h2 className="text-white mb-0">User Options</h2>
                   </div>
-                  <div className="col">
-                    {/* <Nav className="justify-content-end" pills>
+                  {/* <div className="col">
+                    <Nav className="justify-content-end" pills>
                       <NavItem>
                         <NavLink
                           className={classnames("py-2 px-3", {
@@ -194,18 +345,81 @@ const UserDashboard = props => {
                           <span className="d-md-none">W</span>
                         </NavLink>
                       </NavItem>
-                    </Nav> */}
-                  </div>
+                    </Nav>
+                  </div> */}
                 </Row>
               </CardHeader>
               <CardBody>
                 {/* Chart */}
-                <div className="">
-                  {/* <Line
-                    data={chartExample1[chartExample1Data]}
-                    options={chartExample1.options}
-                    getDatasetAtEvent={(e) => console.log(e)}
-                  /> */}
+                <div className="note">
+                  <h1>Account details</h1>
+                  <h3>{balance}</h3>
+                  <button className="btn btn-primary" onClick={createAccount}>
+                    Create Account
+                  </button>
+                  <hr />
+                  <button className="btn btn-primary" onClick={topUp}>
+                    Top Up
+                  </button>
+                </div>
+                {/*  */}
+                <div id="topup_form" className="note ">
+                  <h1>Enter Info</h1>
+                  <hr />
+                  <input
+                    onChange={changeAmount}
+                    className="form-control"
+                    placeholder="Enter Amount"
+                    value={amount}
+                  ></input>
+                  <hr />
+                  <button
+                    style={{ marginTop: "35px" }}
+                    className="btn btn-success"
+                    onClick={submitTopup}
+                  >
+                    Top Up
+                  </button>
+                </div>
+                {/*  */}
+                <div className="note">
+                  <h1>Request A Loan</h1>
+                  <h3>Fill the Application to request a Loan</h3>
+                  <input
+                    onChange={updateLoanForm}
+                    className="form-control"
+                    placeholder="Enter Amount"
+                    name="amount"
+                    value={loanInfo.amount}
+                  ></input>
+                  <hr />
+                  <input
+                    onChange={updateLoanForm}
+                    className="form-control"
+                    placeholder="Enter Reason"
+                    name="reason"
+                    value={loanInfo.reason}
+                  ></input>
+                  <hr />
+                  <button
+                    className="btn btn-outline-primary"
+                    onClick={submitTopup}
+                  >
+                    Request
+                  </button>
+                </div>
+                {/*  */}
+                <div className="note">
+                  <h1>Funds</h1>
+                  <h3>Contribute to a fund</h3>
+                  {funds.map(fund => (
+                    <fundsAndContributions />
+                  ))}
+                </div>
+                {/*  */}
+                <div className="note">
+                  <h1>Contributions</h1>
+                  <h3>Make a Contribution</h3>
                 </div>
               </CardBody>
             </Card>
@@ -244,74 +458,20 @@ const UserDashboard = props => {
                 </Row>
               </CardHeader>
               <div style={{ maxHeight: "200px" }} className="chat__body">
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>
-                <p className={`chat__message ${false && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>{" "}
-                <p className={`chat__message ${true && "chat__reciever"}`}>
-                  <span className="chat__name">Ballack</span>Hey guys
-                  <span className="chat__timestamp">3:15pm</span>
-                </p>
+                {chatMessages.map(message => (
+                  <p
+                    className={`chat__message ${
+                      message.name === props.currentUser?.username &&
+                      "chat__reciever"
+                    }`}
+                  >
+                    <span className="chat__name">{message.name}</span>
+                    {message.message}
+                    <span className="chat__timestamp">
+                      {message.timestamp.slice(0, 5)}
+                    </span>
+                  </p>
+                ))}
               </div>
               <div className="chat__footer">
                 {/* <InsertEmoticon /> */}
@@ -330,18 +490,21 @@ const UserDashboard = props => {
               </div>
             </Card>
           </Col>
+          <Col>
+            <Card>
+              <div className="note others">
+                {messages?.map((message, index) => (
+                  // <MessageComponent key={index} properties={message} />
+                  <CustomizedDialogs
+                    key={index}
+                    subject={message.subject}
+                    message={message.message}
+                  />
+                ))}
+              </div>
+            </Card>
+          </Col>
         </Row>
-
-        <div className="note">
-          {messages?.map((message, index) => (
-            // <MessageComponent key={index} properties={message} />
-            <CustomizedDialogs
-              key={index}
-              subject={message.subject}
-              message={message.message}
-            />
-          ))}
-        </div>
 
         {/* <Row className="mt-5">
           <Col className="mb-5 mb-xl-0" xl="8">

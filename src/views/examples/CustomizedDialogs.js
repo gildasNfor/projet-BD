@@ -67,7 +67,7 @@ export default function CustomizedDialogs({ subject, message }) {
   return (
     <div>
       <div
-        className="pointer"
+        className="others"
         variant="outlined"
         color="primary"
         onClick={handleClickOpen}
